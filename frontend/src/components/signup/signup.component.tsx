@@ -219,13 +219,6 @@ const SignUpComponent = () => {
   }}
   error={errors.confirmPassword}
 />
-
-
-
-
-
-
-
               <SSButton text="Sign Up" type="submit" isLoading={isBusy} />
             </form>
           ) : (
