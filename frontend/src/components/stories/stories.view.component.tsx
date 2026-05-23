@@ -32,6 +32,7 @@ const StoriesViewComponent: React.FC<StoriesComponentProps> = ({
   );
   const [topics, setTopics] = useState<ITopicData[]>(topicsData);
   const [selectTopics, setSelectTopics] = useState<ITopicData[]>([]);
+  const [newTopicTitle, setNewTopicTitle] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [createPost] = useCreatePostMutation();
@@ -51,9 +52,53 @@ const StoriesViewComponent: React.FC<StoriesComponentProps> = ({
   };
 
   const handleTopicClick = (index: number) => {
-    const updatedTopics = [...topics];
-    updatedTopics[index].selected = !updatedTopics[index].selected;
-    setTopics(updatedTopics);
+    setTopics((currentTopics) =>
+      currentTopics.map((topic, topicIndex) =>
+        topicIndex === index
+          ? { ...topic, selected: !topic.selected }
+          : topic
+      )
+    );
+  };
+
+  const handleAddTopic = () => {
+    const title = newTopicTitle.trim();
+
+    if (!title) {
+      toast.error("Please enter a topic.");
+      return;
+    }
+
+    const normalizedTitle = title.startsWith("#") ? title : `#${title}`;
+    const topicExists = topics.some(
+      (topic) => topic.title.toLowerCase() === normalizedTitle.toLowerCase()
+    );
+
+    if (topicExists) {
+      toast.error("This topic already exists.");
+      return;
+    }
+
+    setTopics((currentTopics) => [
+      ...currentTopics,
+      {
+        title: normalizedTitle,
+        color: "bg-indigo-100 text-indigo-800",
+        selected: true,
+      },
+    ]);
+    setNewTopicTitle("");
+  };
+
+  const handleRemoveTopic = (index: number) => {
+    if (topics.length <= 2) {
+      toast.error("At least 2 topics are required.");
+      return;
+    }
+
+    setTopics((currentTopics) =>
+      currentTopics.filter((_, topicIndex) => topicIndex !== index)
+    );
   };
 const handleCopyStory = async () => {
   if (selectedStory?.content) {
@@ -99,6 +144,10 @@ const handleExportPDF = () => {
     }
     if (!selectedStory) {
       toast.error("No story available. Please generate a story first.");
+      return;
+    }
+    if (selectTopics.length < 2) {
+      toast.error("Please select at least 2 topics.");
       return;
     }
     const post: IPost = {
@@ -241,21 +290,57 @@ const handleExportPDF = () => {
               <h3 className="text-lg font-bold text-slate-200 mb-4">
                 Select Topics
               </h3>
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                <input
+                  type="text"
+                  value={newTopicTitle}
+                  onChange={(event) => setNewTopicTitle(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      handleAddTopic();
+                    }
+                  }}
+                  placeholder="Add related topic"
+                  className="flex-1 rounded-lg border border-slate-600 bg-slate-900/70 px-4 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                />
+                <button
+                  type="button"
+                  className="rounded-lg px-4 py-2 bg-blue-600 text-white font-semibold cursor-pointer hover:bg-blue-500 transition-colors"
+                  onClick={handleAddTopic}
+                >
+                  Add Topic
+                </button>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {selectedStory ? (
                   <>
                     {topics.map((topic, index) => (
                       <span
                         key={index}
-                        className={`px-4 py-1.5 ${topic.color} rounded-full text-sm font-medium transition-transform hover:scale-105 cursor-pointer shadow-sm`}
-                        onClick={() => handleTopicClick(index)}
+                        className={`inline-flex items-center gap-2 px-4 py-1.5 ${topic.color} rounded-full text-sm font-medium transition-transform hover:scale-105 shadow-sm`}
                       >
-                        {topic.selected ? (
-                          <i className="fa-solid fa-check"></i>
-                        ) : (
-                          <i className="fa-solid fa-plus"></i>
-                        )}{" "}
-                        {topic.title}
+                        <button
+                          type="button"
+                          className="cursor-pointer"
+                          onClick={() => handleTopicClick(index)}
+                        >
+                          {topic.selected ? (
+                            <i className="fa-solid fa-check"></i>
+                          ) : (
+                            <i className="fa-solid fa-plus"></i>
+                          )}{" "}
+                          {topic.title}
+                        </button>
+                        <button
+                          type="button"
+                          className="cursor-pointer border-l border-current/30 pl-2 disabled:cursor-not-allowed disabled:opacity-40"
+                          onClick={() => handleRemoveTopic(index)}
+                          disabled={topics.length <= 2}
+                          aria-label={`Remove ${topic.title}`}
+                        >
+                          <i className="fa-solid fa-xmark"></i>
+                        </button>
                       </span>
                     ))}
                   </>
