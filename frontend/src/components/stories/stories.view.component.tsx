@@ -44,7 +44,6 @@ const StoriesViewComponent: React.FC<StoriesComponentProps> = ({
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [createPost] = useCreatePostMutation();
   const { data: profile } = useGetProfileInfoQuery(undefined, { skip: !isLogin });
-
   // Alternate ending state & hooks
   const [endingsCache, setEndingsCache] = useState<{
     [uuid: string]: { style: string; ending: string; fullStory: string }[];
@@ -128,7 +127,6 @@ const StoriesViewComponent: React.FC<StoriesComponentProps> = ({
     );
     toast.success("Reverted to original story ending!");
   };
-
 
   useEffect(() => {
     setSelectTopics(topics.filter((topic) => topic.selected));
