@@ -2,6 +2,9 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import SSInput from "../ui-component/ss-input/ss-input";
 import SSButton from "../ui-component/ss-button/ss-button";
 import { useState } from "react";
+import "./auth.css";
+
+import "@flaticon/flaticon-uicons/css/all/all.css";
 import {
   useLoginUserMutation,
   useGoogleLoginMutation,
@@ -11,6 +14,10 @@ import { USER_ROLE } from "../../constants/role";
 import RedirectComponent from "../redirect.component";
 import toast, { Toaster } from "react-hot-toast";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+
+
+
+
 
 type Inputs = {
   email: string;
@@ -110,117 +117,272 @@ const LoginComponent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 flex items-center justify-center relative overflow-hidden px-4">
+    <div className="min-h-screen flex items-center justify-center p-4 md:p-6 bg-[#050816] dark:bg-[#050816] bg-white text-black dark:text-white transition-all duration-300">
 
-      {/* Background Glow */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
+      <main className="auth-container flex flex-col md:flex-row overflow-hidden rounded-3xl border border-white/10 dark:border-white/10 border-black/10 shadow-[0_0_40px_rgba(168,85,247,0.12)] w-full max-w-6xl bg-white dark:bg-[#0b1020]">
 
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
+        {/* LEFT SIDE */}
 
-      <div className="flex w-full max-w-md flex-col justify-center py-12 relative z-10">
+        <section className="relative w-full md:w-[48%] min-h-[420px] flex items-center justify-center overflow-hidden">
 
-        <div className="sm:mx-auto sm:w-full sm:max-w-md mb-8">
-          <h2 className="text-center text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400 drop-shadow-sm">
-            STORY SPARK AI
-          </h2>
-        </div>
+          {/* Background Image */}
 
-        <div className="bg-slate-50 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700/50 rounded-2xl p-8 sm:p-10 shadow-2xl">
+          <img
+            src="src/assets/login.jpg"
+            alt="Background"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
 
-            <button
-            onClick={() => window.location.href = "/"}
-            className="mb-4 text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200 flex items-center gap-2"
-                      >
-            ← Back to Home
-            </button>
+          {/* Overlay */}
 
-          <h3 className="mb-6 text-center text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-200">
-            Welcome Back
-          </h3>
+          <div className="absolute inset-0 bg-black/60"></div>
 
-          <form
-            className="space-y-5"
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          {/* Gradient Glow */}
 
-            <SSInput
-              label="Email address"
-              name="email"
-              type="email"
-              placeholder="Enter your email"
-              required={true}
-              icon="fi fi-rr-envelope"
-              register={register}
-              validation={{ required: "Email is required" }}
-              error={errors.email}
-            />
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-transparent to-pink-500/10"></div>
 
-            <SSInput
-              label="Password"
-              name="password"
-              type="password"
-              placeholder="Enter your password"
-              required={true}
-              icon="fi fi-rr-lock"
-              register={register}
-              validation={{ required: "Password is required" }}
-              error={errors.password}
-            />
+          {/* Small Particles */}
 
-            <div className="flex justify-end -mt-2">
-              <a
-                href="/forgot-password"
-                className="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors duration-200"
-              >
-                Forgot Password?
-              </a>
-            </div>
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
 
-            <SSButton
-              text="Sign In"
-              type="submit"
-              isLoading={isBusy}
-            />
+            {Array.from({ length: 40 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full animate-pulse"
+                style={{
+                  width: `${3 + Math.random() * 6}px`,
+                  height: `${3 + Math.random() * 6}px`,
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  background:
+                    "linear-gradient(135deg,#a855f7,#ec4899,#38bdf8)",
+                  opacity: 0.3,
+                  filter: "blur(1px)",
+                  animationDuration: `${2 + Math.random() * 4
+                    }s`,
+                }}
+              />
+            ))}
 
-          </form>
+          </div>
 
-          <div className="mt-6 relative">
+          {/* Content */}
 
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200"></div>
-            </div>
+          <div className="relative z-10 px-8 md:px-14">
 
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
-                OR
+            {/* Brand */}
+
+            <div className="flex items-center gap-3 mb-8">
+
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+
+                <span className="fi fi-rr-sparkles text-white text-sm"></span>
+
+              </div>
+
+              <span className="text-white text-sm tracking-[0.25em] font-bold uppercase">
+
+                Story Spark AI
+
               </span>
+
             </div>
 
+            {/* Hero Text */}
+
+            <h1 className="text-4xl md:text-6xl font-black leading-[0.95] text-white drop-shadow-xl">
+
+              One Spark.
+              <br />
+
+              <span className="bg-gradient-to-r from-purple-300 via-pink-300 to-orange-200 bg-clip-text text-transparent">
+
+                Infinite Worlds.
+
+              </span>
+
+            </h1>
+
+            <p className="mt-6 text-white/90 text-lg leading-relaxed max-w-xl font-medium">
+
+              Turn your imagination into fully illustrated
+              multi-variation AI stories.
+
+            </p>
+
           </div>
 
-          {/* Explicitly added list-none to prevent stray bullet point artifact on production build */}
-          <div className="mt-6 flex justify-center list-none">
-            <GoogleLogin
-              onSuccess={handleGoogleLoginSuccess}
-              onError={handleGoogleLoginError}
-            />
-          </div>
+        </section>
 
-          <p className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
+        {/* RIGHT SIDE */}
 
-            Don't have an account?{" "}
+        <section className="w-full md:w-[48%] flex items-center justify-center p-4 md:p-6 bg-white dark:bg-[#050816]">
 
-            <a
-              href="/signup"
-              className="font-semibold text-blue-400 hover:text-blue-300 transition-colors duration-200"
+          <div className="w-full max-w-[470px] rounded-3xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#09111f]/80 backdrop-blur-xl p-7 md:p-9 shadow-xl">
+
+            {/* Heading */}
+
+            <div className="mb-7">
+
+              <h2 className="text-4xl font-black text-black dark:text-white">
+
+                Welcome back
+
+              </h2>
+
+              <p className="mt-2 text-[16px] text-gray-600 dark:text-gray-400">
+
+                Sign in to continue your story journey.
+
+              </p>
+
+            </div>
+
+            {/* Login Header */}
+
+            <div className="border-b border-black/10 dark:border-white/10 mb-8">
+
+              <button className="w-full pb-4 text-base font-bold tracking-widest text-purple-500 border-b-2 border-purple-500">
+
+                LOG IN
+
+              </button>
+
+            </div>
+
+            {/* FORM */}
+
+            <form
+              className="space-y-5"
+              onSubmit={handleSubmit(onSubmit)}
             >
-              Sign up for free
-            </a>
 
-          </p>
+              {/* EMAIL */}
 
-        </div>
-      </div>
+              <div>
+
+                <label className="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+
+                  Email Address
+
+                </label>
+
+                <div className="relative">
+
+
+                  <input
+                    type="email"
+                    placeholder="name@storyspark.ai"
+                    className="w-full h-[52px] rounded-2xl border border-black/10 dark:border-white/10 bg-gray-100 dark:bg-[#131c2f] pl-[6px] pr-4 text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-500 outline-none focus:border-purple-500 transition-all"
+                    {...register("email", {
+                      required: "Email is required",
+                    })}
+                  />
+
+                </div>
+
+              </div>
+
+              {/* PASSWORD */}
+
+              <div>
+
+                <label className="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+
+                  Password
+
+                </label>
+
+                <div className="relative">
+
+
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    className="w-full h-[52px] rounded-2xl border border-black/10 dark:border-white/10 bg-gray-100 dark:bg-[#131c2f] pl-[6px] pr-12 text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-500 outline-none focus:border-purple-500 transition-all"
+                    {...register("password", {
+                      required: "Password is required",
+                    })}
+                  />
+
+
+
+                </div>
+
+              </div>
+
+              {/* Forgot */}
+
+              <div className="flex justify-end">
+
+                <a
+                  href="/forgot-password"
+                  className="text-sm font-semibold text-purple-500 hover:text-pink-500 transition-all"
+                >
+
+                  Forgot password?
+
+                </a>
+
+              </div>
+
+              {/* GOOGLE */}
+
+              <div className="w-fit mx-auto rounded-2xl p-[1px] bg-gradient-to-r from-purple-500/40 via-fuchsia-500/30 to-indigo-500/40 shadow-lg shadow-purple-900/30">
+
+                <div className="rounded-2xl bg-[#111827]/90 backdrop-blur-xl px-2 py-2 border border-white/10 hover:border-purple-500/40 transition-all duration-300 hover:scale-[1.02]">
+
+                  <GoogleLogin
+                    onSuccess={handleGoogleLoginSuccess}
+                    onError={handleGoogleLoginError}
+                    theme="filled_black"
+                    shape="pill"
+                    size="large"
+                    text="continue_with"
+                  />
+
+                </div>
+
+              </div>
+
+              {/* BUTTON */}
+
+              <button
+                type="submit"
+                disabled={isBusy}
+                className="w-full h-[52px] rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-500 text-white font-bold text-lg shadow-lg hover:scale-[1.01] transition-all duration-300"
+              >
+
+                {isBusy
+                  ? "Signing In..."
+                  : "Log In to Story Spark"}
+
+              </button>
+
+            </form>
+
+            {/* Footer */}
+
+            <p className="text-center mt-8 text-[16px] text-gray-600 dark:text-gray-400">
+
+              Don't have an account?{" "}
+
+              <a
+                href="/signup"
+                className="text-purple-500 font-bold hover:text-pink-500 transition-all"
+              >
+
+                Sign up free
+
+              </a>
+
+            </p>
+
+          </div>
+
+        </section>
+
+      </main>
 
       <Toaster
         position="top-right"
