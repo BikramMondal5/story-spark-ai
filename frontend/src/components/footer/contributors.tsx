@@ -401,7 +401,7 @@ const ContributorsComponent = () => {
         const data = await response.json();
         if (Array.isArray(data)) {
           const filtered = data.filter(
-            (c: Contributor) => c.contributions >= 3
+            (contributor: Contributor) => contributor.contributions >= 1
           );
           setContributors(filtered);
         }
