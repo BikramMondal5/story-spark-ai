@@ -4,10 +4,21 @@ import { Post } from "../post/post.model";
 import { IPost } from "../post/post.interface";
 import { User } from "../user/user.model";
 import { ITokenPayload } from "../../../interfaces/token";
-import { Document } from "mongoose";
+import mongoose from "mongoose";
+
+const USER_RECOMMENDATION_FIELDS = "readingPreferences readingHistory";
+const POST_RECOMMENDATION_FIELDS =
+  "_id title imageURL author emotions genre likesCount viewsCount publishedAt createdAt";
+const AUTHOR_RECOMMENDATION_FIELDS = "name profile.avatar";
+
+type RecommendationPost = Partial<IPost> & {
+  _id: mongoose.Types.ObjectId;
+};
 
 const getPersonalizedRecommendations = async (token: ITokenPayload) => {
-  const user = await User.findById(token._id);
+  const user = await User.findById(token._id)
+    .select(USER_RECOMMENDATION_FIELDS)
+    .lean();
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }
@@ -22,16 +33,16 @@ const getPersonalizedRecommendations = async (token: ITokenPayload) => {
     query._id = { $nin: readingHistory };
   }
 
-  let recommendations: (Document & IPost)[] = [];
+  let recommendations: RecommendationPost[] = [];
 
   // If user has preferences, try to match them
   if (readingPreferences) {
-    const favoriteGenres = readingPreferences.favoriteGenres
+    const favoriteGenres = [...(readingPreferences.favoriteGenres || [])]
       .sort((a, b) => b.count - a.count)
       .slice(0, 3)
       .map(g => g.name);
       
-    const favoriteEmotions = readingPreferences.favoriteEmotions
+    const favoriteEmotions = [...(readingPreferences.favoriteEmotions || [])]
       .sort((a, b) => b.count - a.count)
       .slice(0, 3)
       .map(e => e.name);
@@ -47,9 +58,11 @@ const getPersonalizedRecommendations = async (token: ITokenPayload) => {
       
       const prefQuery = { ...query, $or: orConditions };
       recommendations = await Post.find(prefQuery)
-        .populate("author", "name profile.avatar")
+        .populate("author", AUTHOR_RECOMMENDATION_FIELDS)
+        .select(POST_RECOMMENDATION_FIELDS)
         .sort({ likesCount: -1, viewsCount: -1 })
-        .limit(10);
+        .limit(10)
+        .lean();
     }
   }
 
@@ -69,9 +82,11 @@ const getPersonalizedRecommendations = async (token: ITokenPayload) => {
     };
 
     const popularPosts = await Post.find(fallbackQuery)
-      .populate("author", "name profile.avatar")
+      .populate("author", AUTHOR_RECOMMENDATION_FIELDS)
+      .select(POST_RECOMMENDATION_FIELDS)
       .sort({ likesCount: -1, viewsCount: -1 })
-      .limit(limit);
+      .limit(limit)
+      .lean();
       
     recommendations = [...recommendations, ...popularPosts];
   }
