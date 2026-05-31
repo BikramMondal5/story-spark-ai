@@ -96,41 +96,21 @@ const HelpCategories: FC<HelpCategoriesProps> = ({ categories }) => {
                   <i className={`fa-solid ${category.icon}`}></i>
                 </div>
 
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-blue-500 dark:group-hover:text-blue-300 transition-colors">
-                  {category.title}
-                </h3>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">
-                  {category.description}
-                </p>
+        <p className="mt-3 text-slate-600 dark:text-gray-400 max-w-2xl mx-auto">
+          Jump into the topic you need — from your first story to contributing code.
+        </p>
 
-                <div className="mt-6 flex items-center justify-between">
-                  <span className="text-blue-600 dark:text-blue-300 text-sm font-semibold">
-                    Learn More
-                  </span>
-                  <div
-                    className="
-                      w-10 h-10 rounded-xl
-                      bg-slate-100 dark:bg-white/5
-                      border border-slate-200 dark:border-white/10
-                      flex items-center justify-center
-                      text-slate-400
-                      group-hover:text-white
-                      group-hover:bg-blue-500/80
-                      group-hover:border-blue-500/30
-                      transition-all duration-300
-                    "
-                  >
-                    <i className="fa-solid fa-arrow-right"></i>
-                  </div>
-                </div>
-              </div>
+      </div>
 
-              <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </motion.div>
-          ))}
-        </div>
-      )}
-    </section>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {categories.map((category) => (
+          <HelpCategoryCard
+            key={category.id}
+            category={category}
+          />
+        ))}
+      </div>
+    </motion.section>
   );
 };
 
