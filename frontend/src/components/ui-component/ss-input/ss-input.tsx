@@ -26,6 +26,7 @@ const SSInput = <T extends FieldValues>({
   name,
   type = "text",
   placeholder,
+  required,
   icon,
   register,
   validation,
@@ -35,20 +36,19 @@ const SSInput = <T extends FieldValues>({
 }: SSInputProps<T>) => {
   const [showPassword, setShowPassword] = useState(false);
 
-
-
   const inputType =
-
     type === "password" ? (showPassword ? "text" : "password") : type;
 
-
-
   return (
-    <div className="w-full min-w-0">
-      <label htmlFor={name} className="block text-sm font-medium text-gray-600 dark:text-gray-400">
-        {label}
+    <div className="w-full max-w-full flex flex-col box-border">
+      <label 
+        htmlFor={name} 
+        className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2 text-left"
+      >
+        {label} {required && <span className="text-rose-500">*</span>}
       </label>
-      <div className="relative mt-2 w-full min-w-0">
+      
+      <div className="relative w-full max-w-full flex items-center box-border">
         {icon && (
           <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
             <i className={icon}></i>
@@ -98,11 +98,12 @@ const SSInput = <T extends FieldValues>({
   </button>
 )}
       </div>
+
       {error && (
-        <p className="text-red-400 text-sm mt-1 w-full break-words overflow-hidden">
-        {error.message}
+        <p className="text-xs font-medium text-rose-500 mt-1.5 text-left w-full break-words overflow-hidden">
+          {error.message}
         </p>
-    )}
+      )}
     </div>
   );
 };
