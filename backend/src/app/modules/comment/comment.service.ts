@@ -43,7 +43,7 @@ const createComment = async (
 };
 
 const getCommentsByPostId = async (postId: string) => {
-  return await Comment.find({ post: postId }).populate("author", "name profile.avatar").sort({ createdAt: -1 });
+  return await Comment.find({ postId }).populate("userId", "name profile.avatar").sort({ createdAt: -1 });
 };
 
 const toggleCommentLike = async (commentId: string, token: ITokenPayload) => {
@@ -107,11 +107,11 @@ const deleteComment = async (commentId: string, token: ITokenPayload) => {
       "You are not authorized to delete this comment!"
     );
   }
-  await Comment.findByIdAndDelete(commentId);
-  // Decrement commentsCount on the post atomically
-  await Post.findByIdAndUpdate(comment.postId, {
-    $inc: { commentsCount: -1 },
-  });
+  await Comment.findByIdAndUpdate(commentId, {
+  isDeleted: true,
+  deletedAt: new Date(),
+  comment: "This comment was deleted",
+});
   return { message: "Comment deleted successfully!" };
 };
 
