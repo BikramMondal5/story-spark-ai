@@ -13,9 +13,17 @@ const auth =
     try {
       const authHeader = (req.headers.authorization || "") as string;
 
-      const token = authHeader.startsWith("Bearer ")
+      // Support both header-based and cookie-based tokens.
+      // Logout() blacklists whatever token string it receives (header or cookie),
+      // so auth middleware must check the same token string source.
+      const bearerToken = authHeader.startsWith("Bearer ")
         ? authHeader.slice(7).trim()
         : authHeader.trim();
+
+      const cookieToken = (req as any).cookies?.accessToken || (req as any).cookies?.token;
+
+      const token = bearerToken || cookieToken || "";
+
 
       if (!token) {
         throw new ApiError(
