@@ -53,11 +53,12 @@ interface AIResponse {
   story: string; // This will now contain the stringified JSON payload
   provider: "openai" | "gemini" | "anthropic";
   fallbackUsed: boolean;
+  truncated: boolean;
 }
 
 // ─── OpenAI call ─────────────────────────────────────────────────────────────
 
-async function generateWithOpenAI(systemPrompt: string, userPrompt: string): Promise<string> {
+async function generateWithOpenAI(systemPrompt: string, userPrompt: string): Promise<{ text: string; truncated: boolean }> {
   const client = getOpenAIClient();
   const response = await client.chat.completions.create(
     {
@@ -73,13 +74,14 @@ async function generateWithOpenAI(systemPrompt: string, userPrompt: string): Pro
   );
 
   const text = response.choices[0]?.message?.content;
-  if (!text) throw new Error("OpenAI returned an empty response");
-  return text;
+     if (!text) throw new Error("OpenAI returned an empty response");
+      const truncated = response.choices[0]?.finish_reason === "length";
+       return { text, truncated };
 }
 
 // ─── Anthropic call ──────────────────────────────────────────────────────────
 
-async function generateWithAnthropic(systemPrompt: string, userPrompt: string): Promise<string> {
+async function generateWithAnthropic(systemPrompt: string, userPrompt: string): Promise<{ text: string; truncated: boolean }> {
   const client = getAnthropicClient();
   const response = await client.messages.create(
     {
@@ -91,15 +93,16 @@ async function generateWithAnthropic(systemPrompt: string, userPrompt: string): 
     { timeout: 60000 }
   );
 
-  const textBlock = response.content.find((block) => block.type === "text");
+  const textBlock = response.content.find((block: { type: string }) => block.type === "text");
   const text = textBlock && "text" in textBlock ? textBlock.text : "";
   if (!text) throw new Error("Anthropic returned an empty response");
-  return text;
+  const truncated = response.stop_reason === "max_tokens";
+  return { text, truncated };   
 }
 
 // ─── Gemini call ─────────────────────────────────────────────────────────────
 
-async function generateWithGemini(systemPrompt: string, userPrompt: string): Promise<string> {
+async function generateWithGemini(systemPrompt: string, userPrompt: string): Promise<{ text: string; truncated: boolean }> {
   const client = getGeminiClient();
   
   // Use systemInstruction for gemini-2.5 models
@@ -117,7 +120,9 @@ async function generateWithGemini(systemPrompt: string, userPrompt: string): Pro
   
   const text = result.response.text();
   if (!text) throw new Error("Gemini returned an empty response");
-  return text;
+  const finishReason = result.response.candidates?.[0]?.finishReason;
+  const truncated = finishReason === "MAX_TOKENS";
+  return { text, truncated };
 }
 
 // ─── Helper ────────────────────────────
@@ -161,10 +166,10 @@ export async function generateStory(
   if (chosenProvider === "anthropic" || chosenProvider === "claude") {
     // ── Try Anthropic first ──────────────────────────────────────────────────
     try {
-      let story = await generateWithAnthropic(systemPrompt, userPrompt);
-      story = validateOutput(story); // Security layer: validate output
+      const { text: rawStory1, truncated: truncated1 } = await generateWithAnthropic(systemPrompt, userPrompt);
+      const story1 = validateOutput(rawStory1);
       console.log("[AI] Story generated successfully via Anthropic");
-      return { story, provider: "anthropic", fallbackUsed: false };
+      return { story: story1, provider: "anthropic", fallbackUsed: false, truncated: truncated1 };
     } catch (anthropicError) {
       console.warn(
         "[AI] Anthropic failed:",
@@ -182,11 +187,10 @@ export async function generateStory(
   } else if (chosenProvider === "openai" || !chosenProvider) {
     // ── Try OpenAI first ──────────────────────────────────────────────────────
     try {
-      let story = await generateWithOpenAI(systemPrompt, userPrompt);
-      story = validateOutput(story); // Security layer: validate output
+      const { text: rawStory2, truncated: truncated2 } = await generateWithOpenAI(systemPrompt, userPrompt);
+      const story2 = validateOutput(rawStory2);
       console.log("[AI] Story generated successfully via OpenAI");
-
-      return { story, provider: "openai", fallbackUsed: false };
+      return { story: story2, provider: "openai", fallbackUsed: false, truncated: truncated2 };
 
     } catch (openAIError) {
       console.warn(
@@ -213,11 +217,10 @@ export async function generateStory(
 
   // ── Try Gemini as fallback / direct ───────────────────────────────────────
   try {
-    let story = await generateWithGemini(systemPrompt, userPrompt);
-    story = validateOutput(story); // Security layer: validate output
+    const { text: rawStory3, truncated: truncated3 } = await generateWithGemini(systemPrompt, userPrompt);
+    const story3 = validateOutput(rawStory3);
     console.log(`[AI] Story generated successfully via Gemini (${didFallbackToGemini ? "fallback" : "direct"})`);
-
-    return { story, provider: "gemini", fallbackUsed: didFallbackToGemini };
+    return { story: story3, provider: "gemini", fallbackUsed: didFallbackToGemini, truncated: truncated3 };
 
   } catch (geminiError) {
     console.error(
